@@ -1,0 +1,119 @@
+// Theme Specific Styles
+
+// Full page Layout
+html {
+  height: 100%;
+}
+
+body {
+  height: auto !important;
+  min-height: 100%;
+  overflow-x: initial;
+}
+
+body * {
+  font-family: 'Raleway', sans-serif;
+}
+
+#app {
+  height:100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+//Sticky Header
+#top {
+  width: 100%;
+  position: absolute;
+  z-index: 3;
+  @media screen and (min-width: map-get($grid-breakpoints, md)) {
+    position: fixed;
+  }
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0.5+0,0+80,0+100 */
+  background: -moz-linear-gradient(top, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#80000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
+}
+
+#top a.nav-link {
+  color: #FFF;
+}
+
+.hero-body {
+  padding: 5rem 1.5rem 3rem;
+  @media screen and (min-width: map-get($grid-breakpoints, md)) {
+    padding: 7rem 1.5rem 3rem;
+  }
+}
+
+.navbar-menu {
+  background-color: #FFF;
+  @media screen and (min-width: map-get($grid-breakpoints, md)) {
+    background-color: transparent;
+  }
+}
+
+#mid {
+  position: relative;
+  flex: 1 0 auto;
+  z-index: 2;
+}
+
+#mid .content {
+  padding: 1rem 0;
+}
+
+.is-light {
+  background-color:#eaeaea;
+}
+
+.full-bg {
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.black-50 {
+  color:#FFF !important;
+  background-color: rgba(0,0,0,.5);
+  text-shadow: 0 0 20px rgba(0,0,0,.9);
+}
+.white-50 {
+  background-color: rgba(255,255,255,.5);
+  text-shadow: 0 0 20px rgba(255,255,255,.9);
+}
+
+.white-80 {
+  background-color: rgba(255,255,255,.8);
+  text-shadow: 0 0 20px rgba(255,255,255,.9);
+}
+
+.white-90 {
+  background-color: rgba(255,255,255,.9);
+  text-shadow: 0 0 20px rgba(255,255,255,.9);
+}
+
+a.clickdown.icon.center {
+  position: relative;
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  border: 1px solid #FFF;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  top: -50px;
+  z-index: 30;
+  left: 50%;
+  margin-left: -20px;
+}
+
+.clickdown i.fa.fa-angle-down {
+  font-size: 2.2em;
+  line-height: 1.15em;
+}
+
+#bot {
+  position: relative;
+  z-index: 1;
+}
