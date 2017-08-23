@@ -8,10 +8,15 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class Slider {
 
+    private $dir;
+    private $cpt;
+
     /**
      * Slider constructor.
      */
     function __construct() {
+
+        $this->dir = dirname(__FILE__);
 
     }
 
@@ -20,7 +25,7 @@ class Slider {
      */
     public function createPostType() {
 
-        $slider = new Custom_Post_Type( 'Slide Image', array(
+        $this->cpt = new Custom_Post_Type( 'Slide Image', array(
             'supports'           => array( 'title', 'revisions' ),
             'menu_icon'          => 'dashicons-images-alt2',
             'rewrite'            => array( 'with_front' => false ),
@@ -30,9 +35,9 @@ class Slider {
             'publicly_queryable' => false,
         ) );
 
-        $slider->add_taxonomy( 'Slider' );
+        $this->cpt->add_taxonomy( 'Slider' );
 
-        $slider->add_meta_box( 'Slide Details', array(
+        $this->cpt->add_meta_box( 'Slide Details', array(
             'Photo File'         => 'image',
             'Headline'           => 'text',
             'Caption'            => 'text',
@@ -41,12 +46,14 @@ class Slider {
             'Open in New Window' => 'boolean',
         ) );
 
-        $slider->add_meta_box(
+        $this->cpt->add_meta_box(
             'Photo Description',
             array(
                 'HTML' => 'wysiwyg',
             )
         );
+
+        $this->createAdminColumns();
 
     }
 
@@ -61,9 +68,10 @@ class Slider {
 
     /**
      * @param slider ( post type category )
+     *
      * @return array
      */
-    public function getSlides( $category = '' ){
+    public function getSlides( $category = '' ) {
 
         $request = array(
             'posts_per_page' => - 1,
@@ -89,22 +97,22 @@ class Slider {
         $slidelist = get_posts( $request );
 
         $slideArray = array();
-        foreach ( $slidelist as $slide ){
+        foreach ( $slidelist as $slide ) {
 
-            array_push($slideArray, array(
-                'id'            => (isset($slide->ID)                               ? $slide->ID : null),
-                'name'          => (isset($slide->post_title)                       ? $slide->post_title : null),
-                'slug'          => (isset($slide->post_name)                        ? $slide->post_name : null),
-                'photo'         => (isset($slide->slide_details_photo_file)         ? $slide->slide_details_photo_file : null),
-                'headline'      => (isset($slide->slide_details_headline)           ? $slide->slide_details_headline : null),
-                'caption'       => (isset($slide->slide_details_caption)            ? $slide->slide_details_caption : null),
-                'alt'           => (isset($slide->slide_details_alt_tag)            ? $slide->slide_details_alt_tag : null),
-                'url'           => (isset($slide->slide_details_link)               ? $slide->slide_details_link : null),
-                'target'        => (isset($slide->slide_details_open_in_new_window) ? $slide->slide_details_open_in_new_window : null),
-                'description'   => (isset($slide->photo_description_html)           ? $slide->photo_description_html : null),
-                'link'          => get_permalink($slide->ID),
-
-            ));
+            array_push( $slideArray, array(
+                'id'          => ( isset( $slide->ID ) ? $slide->ID : null ),
+                'name'        => ( isset( $slide->post_title ) ? $slide->post_title : null ),
+                'slug'        => ( isset( $slide->post_name ) ? $slide->post_name : null ),
+                'photo'       => ( isset( $slide->slide_details_photo_file ) ? $slide->slide_details_photo_file : null ),
+                'headline'    => ( isset( $slide->slide_details_headline ) ? $slide->slide_details_headline : null ),
+                'caption'     => ( isset( $slide->slide_details_caption ) ? $slide->slide_details_caption : null ),
+                'alt'         => ( isset( $slide->slide_details_alt_tag ) ? $slide->slide_details_alt_tag : null ),
+                'url'         => ( isset( $slide->slide_details_link ) ? $slide->slide_details_link : null ),
+                'target'      => ( isset( $slide->slide_details_open_in_new_window ) ? $slide->slide_details_open_in_new_window : null ),
+                'description' => ( isset( $slide->photo_description_html ) ? $slide->photo_description_html : null ),
+                'link'        => get_permalink( $slide->ID ),
+                'category'    => ( $category != '' ? $category : 'none' ),
+            ) );
 
         }
 
@@ -112,62 +120,60 @@ class Slider {
 
     }
 
-    /**
-     * @param slider ( post type category )
-     * @return HTML
-     */
-    public function getSlider($category = ''){
+    private function buildIndicators( $slideArray ) {
 
-        $slides = $this->getSlides($category);
-        $slider = '';
-        $slidercontent = '';
         $indicators = '';
 
-        $i = 0;
-        foreach($slides as $slide){
+        foreach ( $slideArray as $num => $indicator ) {
 
-            $slidercontent .= '<div class="carousel-item full-bg '.($i == 0 ? ' active' : '').'" style="background-image:url('.$slide['photo'].')" >
-                    <div class="carousel-caption d-md-block">'
-                    . ($slide['headline'] != '' ? '<h2 class="slider-headline">'.$slide['headline'].'</h2>' : '')
-                    . ($slide['caption'] != '' ? '<p class="slider-subtitle">'.$slide['caption'].'</p>' : '')
-                    . ($slide['description'] != '' ? $slide['description'] : '') .
-                    '</div>
-                </div>';
+            $indicators .= file_get_contents( $this->dir . '/IndicatorBuilder.php' );
+            $indicators = str_replace( '{indicator-category}', $indicator['category'], $indicators );
+            $indicators = str_replace( '{indicator-num}', $num, $indicators );
+            $indicators = str_replace( '{indicator-active}', ( $num == 0 ? 'active' : '' ), $indicators );
 
-            $indicators .= '<li data-target="#carousel-' . $category[0]->slug . '" data-slide-to="' . $i . '" ';
-            if ( $i < 1 ) {
-                $indicators .= 'class="active"';
-            }
-            $indicators .= '></li>';
-
-            $i++;
         }
 
-        $slider .= '    
-        <div id="carousel-' . $category . '" class="carousel slide carousel-fade" data-ride="carousel">
-            
-            <ol class="carousel-indicators">' . $indicators . '</ol>
-            
-            <div class="carousel-inner" role="listbox">
-            ' . $slidercontent . '
-            </div>
-            
-            <a class="carousel-control-prev" href="#carousel-' . $category . '" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                     viewBox="0 0 4.5 8" style="enable-background:new 0 0 4.5 8;" xml:space="preserve">
-                <path d="M4,0L0,4l4,4l0.5-0.5L1,4l3.5-3.5L4,0z"/>
-                </svg></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#carousel-' . $category . '" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                     viewBox="0 0 4.5 8" style="enable-background:new 0 0 4.5 8;" xml:space="preserve">
-                <path d="M0.5,8l4-4l-4-4L0,0.5L3.5,4L0,7.5L0.5,8z"/>
-                </svg></span>
-                <span class="sr-only">Next</span>
-            </a>
-            
-        </div>';
+        return $indicators;
+
+    }
+
+    private function buildSlides( $slideArray ) {
+
+        $slides = '';
+
+        foreach ( $slideArray as $num => $slide ) {
+
+            $slides .= file_get_contents( $this->dir . '/SlideBuilder.php');
+            $slides = str_replace( '{slide-headline}', $slide['headline'], $slides );
+            $slides = str_replace( '{slide-caption}', $slide['caption'], $slides );
+            $slides = str_replace( '{slide-description}', $slide['description'], $slides );
+            $slides = str_replace( '{slide-active}', ( $num == 0 ? 'active' : '' ), $slides );
+            $slides = str_replace( '{slide-photo}', $slide['photo'], $slides );
+
+        }
+
+        return $slides;
+
+    }
+
+    private function buildSlider( $slideArray ) {
+
+        $indicators = $this->buildIndicators( $slideArray );
+        $slides     = $this->buildSlides( $slideArray );
+
+        $slider = file_get_contents( $this->dir . '/SliderBuilder.php' );
+        $slider = str_replace( '{slider-category}', ( $slideArray[0]['category'] != '' ? $slideArray[0]['category'] : 'none' ), $slider );
+        $slider = str_replace( '{slider-indicators}', $indicators, $slider );
+        $slider = str_replace( '{slider-slides}', $slides, $slider );
+
+        return $slider;
+
+    }
+
+    public function getSlider( $category = '' ) {
+
+        $slideArray = $this->getSlides( $category );
+        $slider     = $this->buildSlider( $slideArray );
 
         return $slider;
 
