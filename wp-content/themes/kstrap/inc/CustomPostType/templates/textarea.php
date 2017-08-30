@@ -4,7 +4,7 @@
             <label for="{field-name}">{field-label}</label>
         </td>
         <td>
-            <input type="text" name="custom_meta[{field-name}]" id="{field-name}" value="{field-value}" style="width: 100%" class="form-control" />
+            <textarea name="custom_meta[{field-name}]" id="{field-name}" style="width: 100%; min-height:100px" class="form-control">{field-value}</textarea>
         </td>
     </tr>
 </table>

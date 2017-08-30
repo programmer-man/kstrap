@@ -19,11 +19,13 @@ $book->addTaxonomy('category');
 $book->addTaxonomy('author');
 
 $book->addMetaBox(
-    'Book Info',
-    array(
-        'Year'  => 'text',
-        'Genre' => 'text'
-    )
+	'Book Info',
+	array(
+		'Year'        => 'text',
+		'Genre'       => 'text',
+		'Description' => 'textarea',
+        'Featured'    => 'boolean'
+	)
 );
 
 $book->addMetaBox(

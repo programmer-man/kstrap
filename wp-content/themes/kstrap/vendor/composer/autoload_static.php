@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit79cf883171e1e3ec5209e4bd71b838ed
+class ComposerStaticInit6baba5f1686ce8f60bbdb381b80a78e6
 {
     public static $files = array (
         'de85a44be454aa97188dad52ed888bed' => __DIR__ . '/..' . '/panique/laravel-sass/sass-compiler.php',
@@ -23,7 +23,7 @@ class ComposerStaticInit79cf883171e1e3ec5209e4bd71b838ed
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInit79cf883171e1e3ec5209e4bd71b838ed::$classMap;
+            $loader->classMap = ComposerStaticInit6baba5f1686ce8f60bbdb381b80a78e6::$classMap;
 
         }, null, ClassLoader::class);
     }

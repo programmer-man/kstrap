@@ -221,6 +221,9 @@ class CustomPostType
             $field = str_replace('{field-name}', $fieldIdName, $field);
             $field = str_replace('{field-label}', $label, $field);
             $field = str_replace('{field-value}', $meta[$fieldIdName][0], $field);
+
+	        //TODO: Add enque if scripts are needed (image and wysiwyg)
+
             echo $field;
         }
     }
@@ -236,17 +239,17 @@ class CustomPostType
                     function ($post, $data) {
                         global $post;
 
-                        wp_nonce_field(plugin_basename(__FILE__), 'CustomPostType');
-                        $customFields = $data['args'][0];
-                        $meta          = get_post_custom($post->ID);
+	                    wp_nonce_field( plugin_basename( __FILE__ ), 'CustomPostType' );
+	                    $customFields = $data['args'][0];
+	                    $meta         = get_post_custom( $post->ID );
 
-                        if ( ! empty($customFields)) {
-                            foreach ($customFields as $label => $type) {
-                                $this->createField($label, $type, $meta, $data);
-                            }
-                        }
+	                    if ( ! empty( $customFields ) ) {
+		                    foreach ( $customFields as $label => $type ) {
+			                    $this->createField( $label, $type, $meta, $data );
+		                    }
+	                    }
                     },
-                    $postTypeName,
+	                $postTypeName,
                     $boxContext,
                     $boxPriority,
                     array( $fields )
