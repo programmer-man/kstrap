@@ -1,13 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Bryan
- * Date: 8/23/2017
- * Time: 3:10 PM
+ * CustomPostType Class
  */
 
-//namespace KMA\Helpers;
-
+//TODO: namespace PSJCG\Helpers;
 
 class CustomPostType
 {
@@ -161,6 +157,7 @@ class CustomPostType
         $mergedArgs = array_merge(
 
             array(
+                'hierarchical'      => true,
                 'label'             => $this->pluralizeName($taxName),
                 'labels'            => $this->defineTaxLabels($taxName, $taxonomyLabels),
                 'public'            => true,
@@ -208,21 +205,69 @@ class CustomPostType
 
     }
 
-    private function uglify( $text ) {
+    private function uglify($text)
+    {
         return strtolower(str_replace(' ', '_', $text));
     }
 
-    private function createField( $label, $type, $meta, $data )
+    private function createField($label, $type, $meta, $data)
     {
+
+        $isMulti = ( is_array($type) ? true : false);
         $fieldIdName  = $this->uglify($data['id']) . '_' . $this->uglify($label);
-        $templateFile = $this->dir . '/templates/' . $type . '.php';
+
+        if($isMulti){
+            $templateFile = $this->dir . '/templates/' . $type['type'] . '.php';
+        }else{
+            $templateFile = $this->dir . '/templates/' . $type . '.php';
+        }
+
         if (file_exists($templateFile)) {
             $field = file_get_contents($templateFile);
-            $field = str_replace('{field-name}', $fieldIdName, $field);
-            $field = str_replace('{field-label}', $label, $field);
-            $field = str_replace('{field-value}', $meta[$fieldIdName][0], $field);
 
-	        //TODO: Add enque if scripts are needed (image and wysiwyg)
+            if ($type != 'wysiwyg') {
+                $field = str_replace('{field-name}', $fieldIdName, $field);
+                $field = str_replace('{field-label}', $label, $field);
+                $field = str_replace('{field-value}', $meta[$fieldIdName][0], $field);
+            } else {
+                $editor = wp_editor($meta[$fieldIdName][0], $fieldIdName,
+                    array(
+                        'quicktags'     => array('buttons' => 'em,strong,link'),
+                        'textarea_name' => 'custom_meta[' . $fieldIdName . ']',
+                        'quicktags'     => true,
+                        'tinymce'       => true
+                    )
+                );
+                $field  = str_replace('{wysiwyg-editor}', $editor, $field);
+            }
+
+            if ($type == 'boolean') {
+                $checked = ($meta[$fieldIdName][0] == 'on' ? 'checked' : '');
+                $field   = str_replace('{field-checked}', $checked, $field);
+            }
+
+            if ($type == 'date') {
+                wp_enqueue_style('flatpickr-style', 'https://unpkg.com/flatpickr/dist/flatpickr.min.css');
+                wp_enqueue_script('flatpickr-script', 'https://unpkg.com/flatpickr', array('jquery'));
+            }
+
+            if ($isMulti) {
+
+                $options = '';
+                foreach($type['data'] as $key => $option) {
+                    $optionField = file_get_contents($this->dir . '/templates/' . $type['type'] . '-option.php');
+                    $optionField = str_replace('{field-name}', $fieldIdName, $optionField);
+                    $optionField = str_replace('{field-value}', $option, $optionField);
+
+                    if($option == $meta[$fieldIdName][0]){
+                        $optionField = str_replace('{field-selected}', ( $type['type'] == 'select' ? 'selected' : 'checked' ), $optionField);
+                    }
+
+                    $options .= $optionField;
+                }
+                $field = str_replace('{multifields}', $options, $field);
+
+            }
 
             echo $field;
         }
@@ -239,20 +284,20 @@ class CustomPostType
                     function ($post, $data) {
                         global $post;
 
-	                    wp_nonce_field( plugin_basename( __FILE__ ), 'CustomPostType' );
-	                    $customFields = $data['args'][0];
-	                    $meta         = get_post_custom( $post->ID );
+                        wp_nonce_field(plugin_basename(__FILE__), 'custom_post_type');
+                        $customFields = $data['args'][0];
+                        $meta         = get_post_custom($post->ID);
 
-	                    if ( ! empty( $customFields ) ) {
-		                    foreach ( $customFields as $label => $type ) {
-			                    $this->createField( $label, $type, $meta, $data );
-		                    }
-	                    }
+                        if ( ! empty($customFields)) {
+                            foreach ($customFields as $label => $type) {
+                                $this->createField($label, $type, $meta, $data);
+                            }
+                        }
                     },
-	                $postTypeName,
+                    $postTypeName,
                     $boxContext,
                     $boxPriority,
-                    array( $fields )
+                    array($fields)
                 );
             }
         );
@@ -277,32 +322,50 @@ class CustomPostType
         }
     }
 
+    public function convertCheckToRadio($tax)
+    {
+
+        add_filter('wp_terms_checklist_args', function ($args) use ($tax) {
+            if ( ! empty($args['taxonomy']) && $args['taxonomy'] === $tax) {
+                if (empty($args['walker']) || is_a($args['walker'], 'Walker')) { // Don't override 3rd party walkers.
+
+                    include(wp_normalize_path(get_template_directory() . '/inc/Layout_Walker.php'));
+                    $args['walker'] = new Layout_Walker_Category_Radio_Checklist;
+
+                }
+            }
+
+            return $args;
+        });
+
+    }
+
     public function save()
     {
         $postTypeName = $this->postTypeName;
 
-        add_action( 'save_post',
-            function() use( $postTypeName )
-            {
+        add_action('save_post',
+            function () use ($postTypeName) {
                 // Deny the WordPress autosave function
-                if( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) return;
+                if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+                    return;
+                }
 
-                if ( ! wp_verify_nonce( $_POST['custom_post_type'], plugin_basename(__FILE__) ) ) return;
+                if ( ! wp_verify_nonce($_POST['custom_post_type'], plugin_basename(__FILE__))) {
+                    return;
+                }
 
                 global $post;
 
-                if( isset( $_POST ) && isset( $post->ID ) && get_post_type( $post->ID ) == $postTypeName )
-                {
+                if (isset($_POST) && isset($post->ID) && get_post_type($post->ID) == $postTypeName) {
                     global $customFields;
 
                     // Loop through each meta box
-                    foreach( $customFields as $title => $fields )
-                    {
+                    foreach ($customFields as $title => $fields) {
                         // Loop through all fields
-                        foreach( $fields as $label => $type )
-                        {
-                            $fieldIdName  = $this->uglify($title ) . '_' . $this->uglify($label);
-                            update_post_meta( $post->ID, $fieldIdName, $_POST['custom_meta'][$fieldIdName] );
+                        foreach ($fields as $label => $type) {
+                            $fieldIdName = $this->uglify($title) . '_' . $this->uglify($label);
+                            update_post_meta($post->ID, $fieldIdName, $_POST['custom_meta'][$fieldIdName]);
                         }
 
                     }

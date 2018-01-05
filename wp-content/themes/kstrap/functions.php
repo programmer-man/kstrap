@@ -21,19 +21,33 @@ $book->addTaxonomy('author');
 $book->addMetaBox(
 	'Book Info',
 	array(
-		'Year'        => 'text',
-		'Genre'       => 'text',
-		'Description' => 'textarea',
-        'Featured'    => 'boolean'
+		'Year'               => 'text',
+		'Genre'              => 'text',
+		'Description'        => 'textarea',
+		'Featured'           => 'boolean',
+		'Favorite Cat Photo' => 'image',
+		'Start Date'         => 'date',
+		'Type'               => [
+			'type' => 'select',
+			'data' => [
+				'something'        => 'something',
+				'something_better' => 'something better'
+			]
+		],
+		'Will it Blend?'     => [
+			'type' => 'radio',
+			'data' => [
+				'Yes' => 'Yes',
+				'No'  => 'No'
+			]
+		]
 	)
 );
 
 $book->addMetaBox(
-    'Author Info',
+    'Formatted Description',
     array(
-        'Name'        => 'text',
-        'Nationality' => 'text',
-        'Birthday'    => 'text'
+        'html'        => 'wysiwyg'
     )
 );
 

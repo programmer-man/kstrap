@@ -4,7 +4,7 @@
             <label for="{field-name}">{field-label}</label>
         </td>
         <td>
-            <input type="checkbox" name="custom_meta[{field-name}]" id="{field-name}" value="{field-value}" class="form-control" />
+            <input type="checkbox" name="custom_meta[{field-name}]" id="{field-name}" class="form-control" {field-checked} />
         </td>
     </tr>
 </table>
