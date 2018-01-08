@@ -189,11 +189,20 @@ Click the help icon above to learn more.
         <input type="hidden" value="<?php echo $form->show_services; ?>" name="show_services"/>
         <?php if (isset($form->anpt_show_amount_text) && $form->anpt_show_amount_text == "1") { ?>
             <div class="columns is-multiline">
-                <div class="column is-6" >
+                <div class="column is-12" >
                     <label class="label">Patient Account Number:</label>
                     <div class="field">
                         <p class="control">
-                            <input name="invoicenum" id="invoicenum" type="text" class="input small-field" value="<?php echo $invoicenum; ?>"
+                            <input name="patientnumber" id="patientnumber" type="text" class="input small-field" value="<?php echo $patientnumber; ?>"
+                                   onkeyup="checkFieldBack(this);noAlpha(this);" onkeypress="noAlpha(this);"/>
+                        </p>
+                    </div>
+                </div>
+                <div class="column is-6" >
+                    <label class="label">Invoice Number:</label>
+                    <div class="field">
+                        <p class="control">
+                            <input name="invoicenumber" id="invoicenumber" type="text" class="input small-field" value="<?php echo $invoicenum; ?>"
                                    onkeyup="checkFieldBack(this);noAlpha(this);" onkeypress="noAlpha(this);"/>
                         </p>
                     </div>

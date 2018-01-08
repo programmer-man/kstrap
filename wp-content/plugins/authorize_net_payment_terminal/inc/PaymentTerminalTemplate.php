@@ -22,7 +22,7 @@ class PaymentTerminalTemplate
         $form = new PaymentTerminalProcess();
         if(!$form->formSubmit()) {
             include($this->templateDir . '/anet-form.php');
-        } else {
+        }else{
             $form->displaySuccessMessage();
         }
     }

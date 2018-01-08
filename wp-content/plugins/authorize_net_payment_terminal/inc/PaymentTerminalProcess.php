@@ -58,12 +58,13 @@ class PaymentTerminalProcess
     {
         if (isset($_POST["process"]) && $_POST["process"] == 'yes') {
             if ($this->validateSubmission()) {
-                $this->processCC();
-                return true;
+                return $this->processCC();
             }else{
+                $this->displayErrorMessage();
                 return false;
             }
         }else{
+            $this->displayIntroMessage();
             return false;
         }
     }
@@ -407,9 +408,7 @@ class PaymentTerminalProcess
         }
 
         if ($this->validateSubmission()) {
-
-            //TODO: change this
-
+            
             $cctype = ( ! empty($_POST['cctype'])) ? strip_tags(str_replace("'", "`", strip_tags($_POST['cctype']))) : '';
             $ccname = ( ! empty($_POST['ccname'])) ? strip_tags(str_replace("'", "`", strip_tags($_POST['ccname']))) : '';
             $ccn    = ( ! empty($_POST['ccn'])) ? strip_tags(str_replace("'", "`", strip_tags($_POST['ccn']))) : '';
@@ -422,36 +421,95 @@ class PaymentTerminalProcess
             $merchantAuthentication->setName(AUTHORIZENET_API_LOGIN_ID);
             $merchantAuthentication->setTransactionKey(AUTHORIZENET_TRANSACTION_KEY);
             $refId = 'ref' . time();
+            $customerId = "CN_" . time();
+            $invoiceNumber = (isset($_POST['invoicenumber']) ? $_POST['invoicenumber'] : '');
+            $patientAccountNumber = (isset($_POST['patientnumber']) ? $_POST['patientnumber'] : '');
 
             // Create the payment data for a credit card
             $creditCard = new AnetAPI\CreditCardType();
             $creditCard->setCardNumber($ccn);
             $creditCard->setExpirationDate( $exp2 . "-" . $exp1);
+            $creditCard->setCardCode($cvv);
             $paymentOne = new AnetAPI\PaymentType();
             $paymentOne->setCreditCard($creditCard);
 
-            // Create a transaction
+            // Create order information
+            $order = new AnetAPI\OrderType();
+            $order->setInvoiceNumber($invoiceNumber);
+            $order->setDescription("Medical payment");
+
+            // Create the Bill To info
+            $billTo = new AnetAPI\CustomerAddressType();
+            $billTo->setFirstName($_POST['fname']);
+            $billTo->setLastName($_POST['lname']);
+            $billTo->setAddress($_POST['address']);
+            $billTo->setCity($_POST['city']);
+            $billTo->setState($_POST['state']);
+            $billTo->setZip($_POST['zip']);
+            $billTo->setCountry($_POST['country']);
+            $billTo->setEmail($_POST['email']);
+
+            // Set the customer's identifying information
+            $customerData = new AnetAPI\CustomerDataType();
+            $customerData->setType("individual");
+            $customerData->setId($patientAccountNumber);
+            $customerData->setEmail($_POST['email']);
+
+            // Add values for transaction settings
+            $duplicateWindowSetting = new AnetAPI\SettingType();
+            $duplicateWindowSetting->setSettingName("duplicateWindow");
+            $duplicateWindowSetting->setSettingValue("60");
+
+            // Add some merchant defined fields. These fields won't be stored with the transaction,
+            // but will be echoed back in the response.
+            $merchantDefinedField1 = new AnetAPI\UserFieldType();
+            $merchantDefinedField1->setName("Patient Account Number");
+            $merchantDefinedField1->setValue($patientAccountNumber);
+
+            // Create a TransactionRequestType object and add the previous objects to it
             $transactionRequestType = new AnetAPI\TransactionRequestType();
             $transactionRequestType->setTransactionType("authCaptureTransaction");
             $transactionRequestType->setAmount($amount);
             $transactionRequestType->setPayment($paymentOne);
+            $transactionRequestType->setOrder($order);
+            $transactionRequestType->setBillTo($billTo);
+            $transactionRequestType->setCustomer($customerData);
+            $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+            $transactionRequestType->addToUserFields($merchantDefinedField1);
+
+            // Assemble the complete transaction request
             $request = new AnetAPI\CreateTransactionRequest();
             $request->setMerchantAuthentication($merchantAuthentication);
-            $request->setRefId( $refId);
+            $request->setRefId($refId);
             $request->setTransactionRequest($transactionRequestType);
+
+            // Create the controller and get the response
             $controller = new AnetController\CreateTransactionController($request);
-            $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
+            $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
 
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
-                if (($tresponse != null) && ($tresponse->getResponseCode() == "1")) {
-                    //echo "Charge Credit Card AUTH CODE : " . $tresponse->getAuthCode() . "\n";
-                    //echo "Charge Credit Card TRANS ID  : " . $tresponse->getTransId() . "\n";
+                if ($tresponse != null && $tresponse->getMessages() != null) {
+                    //echo " Successfully created transaction with Transaction ID: " . $tresponse->getTransId() . "<br>";
+                    //echo " Transaction Response Code: " . $tresponse->getResponseCode() . "<br>";
+                    //echo " Message Code: " . $tresponse->getMessages()[0]->getCode() . "<br>";
+                    //echo " Auth Code: " . $tresponse->getAuthCode() . "<br>";
+                    //echo " Description: " . $tresponse->getMessages()[0]->getDescription() . "<br>";
+
                     return true;
+
                 } else {
-                    $errors = $tresponse->getErrors();
-                    echo "Charge Credit Card ERROR :  Code " . $tresponse->getResponseCode();
-                    //echo '<pre>' . print_r($errors) . '</pre>';
+                    echo "Transaction Failed \n";
+                    $tresponse = $response->getTransactionResponse();
+
+                    if ($tresponse != null && $tresponse->getErrors() != null) {
+                        echo " Error Code  : " . $tresponse->getErrors()[0]->getErrorCode() . "<br>";
+                        echo " Error Message : " . $tresponse->getErrors()[0]->getErrorText() . "<br>";
+                    } else {
+                        echo " Error Code  : " . $response->getMessages()->getMessage()[0]->getCode() . "<br>";
+                        echo " Error Message : " . $response->getMessages()->getMessage()[0]->getText() . "<br>";
+                    }
+
                     return false;
                 }
             } else {
@@ -470,6 +528,16 @@ class PaymentTerminalProcess
         $anpt_ty_text = $anpt_ty_text_var ? nl2br($anpt_ty_text_var) : "";
 
         echo '<p>' . $anpt_ty_text . '</p>';
+    }
+
+    public function displayIntroMessage()
+    {
+        global $wpdb;
+        //get thank you text to display in emails and in thank you message, if needed.
+        $anpt_intro_text_var = $wpdb->get_var("SELECT option_value FROM {$wpdb->prefix}options WHERE option_name = 'anpt_intro_text'");
+        $anpt_intro_text = $anpt_intro_text_var ? nl2br($anpt_intro_text_var) : "";
+
+        echo '<p>' . $anpt_intro_text . '</p>';
     }
 
 }

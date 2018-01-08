@@ -36,6 +36,7 @@ if(isset($_POST['anpt_submit_settings']) && $_POST['anpt_submit_settings'] == 'y
 	update_option('anpt_currency', isset($_POST['anpt_currency'])?$_POST['anpt_currency']:'');
 	update_option('anpt_ty_title', isset($_POST['anpt_ty_title'])?$_POST['anpt_ty_title']:'');
 	update_option('anpt_ty_text', isset($_POST['anpt_ty_text'])?$_POST['anpt_ty_text']:'');
+    update_option('anpt_intro_text', isset($_POST['anpt_intro_text'])?$_POST['anpt_intro_text']:'');
 	update_option('anpt_admin_email', isset($_POST['anpt_admin_email'])?$_POST['anpt_admin_email']:'');
 	update_option('anpt_show_comment_field', isset($_POST['anpt_show_comment_field'])?$_POST['anpt_show_comment_field']:'');
 	update_option('anpt_show_dd_text', isset($_POST['anpt_show_dd_text'])?$_POST['anpt_show_dd_text']:'');
@@ -52,6 +53,7 @@ if(isset($_POST['anpt_submit_settings']) && $_POST['anpt_submit_settings'] == 'y
 $anpt_currency = get_option('anpt_currency');
 $anpt_ty_title = get_option('anpt_ty_title');
 $anpt_ty_text = get_option('anpt_ty_text');
+$anpt_intro_text = get_option('anpt_intro_text');
 $anpt_admin_email = get_option('anpt_admin_email');
 $anpt_show_comment_field = get_option('anpt_show_comment_field');
 $anpt_show_dd_text = get_option('anpt_show_dd_text');
@@ -206,13 +208,21 @@ $anpt_captcha_site = get_option('anpt_captcha_site');
                         </div>
 						
 						<p style="height: 0px;border-bottom: 1px solid #e6e6e6;" >&nbsp;</p>
-						<?php echo "<h4 class='BW-anpt-settings-tip-text-left' >" . __( '"Thank-You" Message' ) . "</h4>"; ?>
+						<?php echo "<h4 class='BW-anpt-settings-tip-text-left' >" . __( '"Intro" Message' ) . "</h4>"; ?>
 						<div id="poststuff">
 							<div id="<?php echo user_can_richedit() ? 'postdivrich' : 'postdiv'; ?>" class="postarea">
-								<?php wp_editor($anpt_ty_text, $editor_id = 'anpt_ty_text', $settings= array($prev_id = 'anpt_ty_text', $media_buttons = false, $tabindex = 4));?><?php _e(" (small text describing next step, appears in widget)" ); ?>
+								<?php wp_editor($anpt_intro_text, $editor_id = 'anpt_intro_text', $settings= array($prev_id = 'anpt_intro_text', $media_buttons = false, $tabindex = 4));?><?php _e(" (small text describing form)" ); ?>
 							</div>
 						</div>
-						<p class="submit"><input class="button-primary" type="submit" name="Submit" value="<?php _e('Update Settings') ?>" /></p>
+
+                        <p style="height: 0px;border-bottom: 1px solid #e6e6e6;" >&nbsp;</p>
+                        <?php echo "<h4 class='BW-anpt-settings-tip-text-left' >" . __( '"Thank-You" Message' ) . "</h4>"; ?>
+                        <div id="poststuff">
+                            <div id="<?php echo user_can_richedit() ? 'postdivrich' : 'postdiv'; ?>" class="postarea">
+                                <?php wp_editor($anpt_ty_text, $editor_id = 'anpt_ty_text', $settings= array($prev_id = 'anpt_ty_text', $media_buttons = false, $tabindex = 4));?><?php _e(" (small text describing next step, appears in widget)" ); ?>
+                            </div>
+                        </div>
+                        <p class="submit"><input class="button-primary" type="submit" name="Submit" value="<?php _e('Update Settings') ?>" /></p>
 					</div>
 				</div>
 			</form>

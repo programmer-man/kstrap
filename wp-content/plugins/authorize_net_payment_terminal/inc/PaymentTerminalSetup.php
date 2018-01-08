@@ -60,6 +60,7 @@ class PaymentTerminalSetup
         update_option('anpt_currency',"USD");
         update_option('anpt_ty_title',"Thank You!");
         update_option('anpt_ty_text',"<p>Thank you for your payment! We really appreciate it.</p>");
+        update_option('anpt_intro_text',"<p>Our online payment form is included below.</p>");
         update_option('anpt_admin_email',"changeme@email.com");
         update_option('anpt_admin_send',"1");
         update_option('anpt_show_comment_field',"1");
@@ -75,6 +76,7 @@ class PaymentTerminalSetup
         delete_option('anpt_currency');
         delete_option('anpt_ty_title');
         delete_option('anpt_ty_text');
+        delete_option('anpt_intro_text');
         delete_option('anpt_admin_email');
         delete_option('anpt_admin_send');
         delete_option('anpt_show_comment_field');

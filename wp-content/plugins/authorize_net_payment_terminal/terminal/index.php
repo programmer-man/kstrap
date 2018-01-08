@@ -39,7 +39,8 @@ if(isset($_GET['serv']))
 	if($_GET['serv']=='false'){ $anpt_show_amount_text=1; }
 }
 $anpt_ty_title = get_option('anpt_ty_title');
-$anpt_ty_text = get_option('anpt_ty_text');
+$anpt_ty_text = get_option('anpt_intro_text');
+$anpt_intro_text = get_option('anpt_ty_text');
 $anpt_show_dd_text = get_option('anpt_show_dd_text');
 
 $anpt_enable_captcha = get_option('anpt_enable_captcha');
