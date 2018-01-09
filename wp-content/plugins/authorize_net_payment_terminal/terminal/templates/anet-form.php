@@ -7,6 +7,7 @@ $resArray = []; # will hold transactions details where does not exist.
 $item_description = ( ! empty($_REQUEST["item_description"])) ? strip_tags(str_replace("'", "`", $_REQUEST["item_description"])) : '';
 $amount           = ( ! empty($_REQUEST["amount"])) ? strip_tags(str_replace("'", "`", $_REQUEST["amount"])) : '';
 $invoicenum       = ( ! empty($_REQUEST["invoicenum"])) ? strip_tags(str_replace("'", "`", $_REQUEST["invoicenum"])) : '';
+$patientname      = ( ! empty($_REQUEST["patientname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["patientname"])) : '';
 $patientnumber    = ( ! empty($_REQUEST["patientnumber"])) ? strip_tags(str_replace("'", "`", $_REQUEST["patientnumber"])) : '';
 $fname            = ( ! empty($_REQUEST["fname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["fname"])) : '';
 $lname            = ( ! empty($_REQUEST["lname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["lname"])) : '';
@@ -189,6 +190,7 @@ Click the help icon above to learn more.
         } ?>
         <input type="hidden" value="<?php echo $form->show_services; ?>" name="show_services"/>
         <?php if (isset($form->anpt_show_amount_text) && $form->anpt_show_amount_text == "1") { ?>
+            <p style="font-size:.8em; padding: 1rem 0;">all fields are required.</p>
             <div class="columns is-multiline">
                 <div class="column is-12" >
                     <label class="label">Patient Account Number:</label>
@@ -200,10 +202,10 @@ Click the help icon above to learn more.
                     </div>
                 </div>
                 <div class="column is-6" >
-                    <label class="label">Invoice Number:</label>
+                    <label class="label">Patient Name:</label>
                     <div class="field">
                         <p class="control">
-                            <input name="invoicenumber" id="invoicenumber" type="text" class="input small-field" value="<?php echo $invoicenum; ?>"
+                            <input name="patientname" id="patientname " type="text" class="input small-field" value="<?php echo $patientname; ?>"
                                    onkeyup="checkFieldBack(this);noAlpha(this);" onkeypress="noAlpha(this);"/>
                         </p>
                     </div>
@@ -237,14 +239,22 @@ Click the help icon above to learn more.
             <div class="column is-12">
                 <label class="label"> I have:</label>
                 <div class="control">
-                    <input name="cctype" type="radio" value="V" class="lft-field"/>
-                    <img src="<?= $imageDir; ?>/ico_visa.jpg" align="absmiddle" class="lft-field cardhide V"/>
-                    <input name="cctype" type="radio" value="M" class="lft-field"/>
-                    <img src="<?= $imageDir; ?>/ico_mc.jpg" align="absmiddle" class="lft-field cardhide M"/>
-                    <input name="cctype" type="radio" value="A" class="lft-field"/>
-                    <img src="<?= $imageDir; ?>/ico_amex.jpg" align="absmiddle" class="lft-field cardhide A"/>
-                    <input name="cctype" type="radio" value="D" class="lft-field"/>
-                    <img src="<?= $imageDir; ?>/ico_disc.jpg" align="absmiddle" class="lft-field cardhide D"/>
+                    <label style="display: inline-block; padding: .5rem 1.5rem .5rem 0;">
+                        <input name="cctype" type="radio" value="V" class="lft-field"  style="margin:2px; vertical-align: middle"/>
+                        <img src="<?php echo $imageDir; ?>/ico_visa.jpg" align="absmiddle" class="lft-field cardhide V"/>
+                    </label>
+                    <label style="display: inline-block; padding: .5rem 1.5rem .5rem 0;">
+                        <input name="cctype" type="radio" value="M" class="lft-field"  style="margin:2px; vertical-align: middle"/>
+                        <img src="<?php echo $imageDir; ?>/ico_mc.jpg" align="absmiddle" class="lft-field cardhide M"/>
+                    </label>
+                    <label style="display: inline-block; padding: .5rem 1.5rem .5rem 0;">
+                        <input name="cctype" type="radio" value="A" class="lft-field"  style="margin:2px; vertical-align: middle"/>
+                        <img src="<?php echo $imageDir; ?>/ico_amex.jpg" align="absmiddle" class="lft-field cardhide A"/>
+                    </label>
+                    <label style="display: inline-block; padding: .5rem 1.5rem .5rem 0;">
+                        <input name="cctype" type="radio" value="D" class="lft-field"  style="margin:2px; vertical-align: middle"/>
+                        <img src="<?php echo $imageDir; ?>/ico_disc.jpg" align="absmiddle" class="lft-field cardhide D"/>
+                    </label>
                 </div>
             </div>
             <div class="column is-5">

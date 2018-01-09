@@ -35,8 +35,8 @@ if(isset($_POST['anpt_submit_settings']) && $_POST['anpt_submit_settings'] == 'y
 {				
 	update_option('anpt_currency', isset($_POST['anpt_currency'])?$_POST['anpt_currency']:'');
 	update_option('anpt_ty_title', isset($_POST['anpt_ty_title'])?$_POST['anpt_ty_title']:'');
-	update_option('anpt_ty_text', isset($_POST['anpt_ty_text'])?$_POST['anpt_ty_text']:'');
-    update_option('anpt_intro_text', isset($_POST['anpt_intro_text'])?$_POST['anpt_intro_text']:'');
+	update_option('anpt_ty_text', isset($_POST['anpt_ty_text']) ? stripslashes($_POST['anpt_ty_text']):'');
+    update_option('anpt_intro_text', isset($_POST['anpt_intro_text']) ? stripslashes($_POST['anpt_intro_text']):'');
 	update_option('anpt_admin_email', isset($_POST['anpt_admin_email'])?$_POST['anpt_admin_email']:'');
 	update_option('anpt_show_comment_field', isset($_POST['anpt_show_comment_field'])?$_POST['anpt_show_comment_field']:'');
 	update_option('anpt_show_dd_text', isset($_POST['anpt_show_dd_text'])?$_POST['anpt_show_dd_text']:'');

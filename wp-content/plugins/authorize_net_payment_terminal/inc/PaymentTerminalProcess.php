@@ -81,6 +81,8 @@ class PaymentTerminalProcess
         $item_description = ( ! empty($_REQUEST["item_description"])) ? strip_tags(str_replace("'", "`", $_REQUEST["item_description"])) : '';
         $amount           = ( ! empty($_REQUEST["amount"])) ? strip_tags(str_replace("'", "`", $_REQUEST["amount"])) : '';
         $invoicenum       = ( ! empty($_REQUEST["invoicenum"])) ? strip_tags(str_replace("'", "`", $_REQUEST["invoicenum"])) : '';
+        $patientAccountNumber = (isset($_POST['patientnumber']) ? $_POST['patientnumber'] : '');
+        $patientName = (isset($_POST['patientname']) ? $_POST['patientname'] : '');
         $fname            = ( ! empty($_REQUEST["fname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["fname"])) : '';
         $lname            = ( ! empty($_REQUEST["lname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["lname"])) : '';
         $email            = ( ! empty($_REQUEST["email"])) ? strip_tags(str_replace("'", "`", $_REQUEST["email"])) : '';
@@ -103,7 +105,7 @@ class PaymentTerminalProcess
             if ($cctype != "PP") {
 
                 //CREDIT CARD PHP VALIDATION
-                if (empty($ccn) || empty($cctype) || empty($exp1) || empty($exp2) || empty($ccname) || empty($cvv) || empty($address) || empty($state) || empty($city)) {
+                if (empty($patientName) || empty($patientAccountNumber) || empty($ccn) || empty($cctype) || empty($exp1) || empty($exp2) || empty($ccname) || empty($cvv) || empty($address) || empty($state) || empty($city)) {
                     $valid          = false;
                     $this->errors[] = 'Not all required fields were filled out';
                 } else {
@@ -316,7 +318,7 @@ class PaymentTerminalProcess
     }
 
     protected function displayErrorMessage(
-        $message = 'There was an error in your submission. Please review your entry and try again.'
+        $message = 'There was an error in your submission. Please review your entry and try to submit the form again.'
     ) {
         echo '<div class="error danger">
                 <p>' . $message . '</p><ul>';
@@ -422,8 +424,9 @@ class PaymentTerminalProcess
             $merchantAuthentication->setTransactionKey(AUTHORIZENET_TRANSACTION_KEY);
             $refId = 'ref' . time();
             $customerId = "CN_" . time();
-            $invoiceNumber = (isset($_POST['invoicenumber']) ? $_POST['invoicenumber'] : '');
+            $invoiceNumber = (isset($_POST['invoicenumber']) ? $_POST['invoicenumber'] : 'INV_' . rand(1,9999999));
             $patientAccountNumber = (isset($_POST['patientnumber']) ? $_POST['patientnumber'] : '');
+            $patientName = (isset($_POST['patientname']) ? $_POST['patientname'] : '');
 
             // Create the payment data for a credit card
             $creditCard = new AnetAPI\CreditCardType();
@@ -466,6 +469,10 @@ class PaymentTerminalProcess
             $merchantDefinedField1->setName("Patient Account Number");
             $merchantDefinedField1->setValue($patientAccountNumber);
 
+            $merchantDefinedField2 = new AnetAPI\UserFieldType();
+            $merchantDefinedField2->setName("Patient Name");
+            $merchantDefinedField2->setValue($patientName);
+
             // Create a TransactionRequestType object and add the previous objects to it
             $transactionRequestType = new AnetAPI\TransactionRequestType();
             $transactionRequestType->setTransactionType("authCaptureTransaction");
@@ -476,6 +483,7 @@ class PaymentTerminalProcess
             $transactionRequestType->setCustomer($customerData);
             $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
             $transactionRequestType->addToUserFields($merchantDefinedField1);
+            $transactionRequestType->addToUserFields($merchantDefinedField2);
 
             // Assemble the complete transaction request
             $request = new AnetAPI\CreateTransactionRequest();
