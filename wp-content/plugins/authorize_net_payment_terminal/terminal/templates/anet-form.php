@@ -7,6 +7,7 @@ $resArray = []; # will hold transactions details where does not exist.
 $item_description = ( ! empty($_REQUEST["item_description"])) ? strip_tags(str_replace("'", "`", $_REQUEST["item_description"])) : '';
 $amount           = ( ! empty($_REQUEST["amount"])) ? strip_tags(str_replace("'", "`", $_REQUEST["amount"])) : '';
 $invoicenum       = ( ! empty($_REQUEST["invoicenum"])) ? strip_tags(str_replace("'", "`", $_REQUEST["invoicenum"])) : '';
+$patientnumber    = ( ! empty($_REQUEST["patientnumber"])) ? strip_tags(str_replace("'", "`", $_REQUEST["patientnumber"])) : '';
 $fname            = ( ! empty($_REQUEST["fname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["fname"])) : '';
 $lname            = ( ! empty($_REQUEST["lname"])) ? strip_tags(str_replace("'", "`", $_REQUEST["lname"])) : '';
 $email            = ( ! empty($_REQUEST["email"])) ? strip_tags(str_replace("'", "`", $_REQUEST["email"])) : '';

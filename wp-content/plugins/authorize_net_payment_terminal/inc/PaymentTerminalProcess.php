@@ -490,11 +490,15 @@ class PaymentTerminalProcess
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
                 if ($tresponse != null && $tresponse->getMessages() != null) {
-                    //echo " Successfully created transaction with Transaction ID: " . $tresponse->getTransId() . "<br>";
-                    //echo " Transaction Response Code: " . $tresponse->getResponseCode() . "<br>";
-                    //echo " Message Code: " . $tresponse->getMessages()[0]->getCode() . "<br>";
-                    //echo " Auth Code: " . $tresponse->getAuthCode() . "<br>";
-                    //echo " Description: " . $tresponse->getMessages()[0]->getDescription() . "<br>";
+//                    echo " Successfully created transaction with Transaction ID: " . $tresponse->getTransId() . "<br>";
+//                    echo " Transaction Response Code: " . $tresponse->getResponseCode() . "<br>";
+//                    echo " Message Code: " . $tresponse->getMessages()[0]->getCode() . "<br>";
+//                    echo " Auth Code: " . $tresponse->getAuthCode() . "<br>";
+//                    echo " Description: " . $tresponse->getMessages()[0]->getDescription() . "<br>";
+
+                    if($tresponse->getMessages()[0]->getCode() != 1){
+                        echo '<p>' . $tresponse->getMessages()[0]->getDescription() . "</p>";
+                    }
 
                     return true;
 
